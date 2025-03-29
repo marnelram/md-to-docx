@@ -18,6 +18,10 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 - 🎨 Customizable styling
 - 📄 Report and document modes
 - 🌐 Browser and Node.js support
+- 🖼️ Support for embedded images
+- 💻 Code blocks (inline and multi-line)
+- 🔗 Support for links
+- ~~Strikethrough~~ text support
 
 ## Installation
 
@@ -51,7 +55,23 @@ This is a paragraph with **bold** and *italic* text.
 | Cell 1   | Cell 2   |
 | Cell 3   | Cell 4   |
 
+# Multi-line Code Block
+\`\`\`typescript
+function hello(name: string): string {
+  return \`Hello, \${name}!\`;
+}
+
+const result = hello("World");
+console.log(result);
+\`\`\`
+
+# Image Test
+This is a test with an embedded image.
+
+![Test Image](https://picsum.photos/200/200)
+
 COMMENT: This is a comment
+
 `;
 
 // Convert to DOCX
@@ -151,9 +171,14 @@ The module supports the following Markdown features:
 - Lists: `-`, `*`, `1.`, `2.`, etc.
 - Bold: `**text**`
 - Italic: `*text*`
+- Strikethrough: `~~text~~`
 - Blockquotes: `> text`
 - Tables: `| Header | Header |`
 - Comments: `COMMENT: text`
+- Images: `![alt text](image-url)`
+- Code blocks: \`\`\`code\`\`\`
+- Inline code: \`code\`
+- Links: `[text](url)`
 
 ## License
 
