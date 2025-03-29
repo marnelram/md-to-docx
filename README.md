@@ -18,7 +18,7 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 ## Installation
 
 ```bash
-npm install @nohtasham/md-to-docx
+npm install @mohtasham/md-to-docx
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ npm install @nohtasham/md-to-docx
 ### Basic Usage
 
 ```typescript
-import { convertMarkdownToDocx, downloadDocx } from "@nohtasham/md-to-docx";
+import { convertMarkdownToDocx, downloadDocx } from "@mohtasham/md-to-docx";
 
 const markdown = `
 # Title
@@ -77,7 +77,7 @@ const blob = await convertMarkdownToDocx(markdown, options);
 
 ```typescript
 import { useState } from "react";
-import { convertMarkdownToDocx, downloadDocx } from "@nohtasham/md-to-docx";
+import { convertMarkdownToDocx, downloadDocx } from "@mohtasham/md-to-docx";
 
 function MarkdownConverter() {
   const [markdown, setMarkdown] = useState("");
