@@ -1,13 +1,13 @@
 {
   "name": "@mohtasham/md-to-docx",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Convert Markdown to Microsoft Word (.docx) documents with support for various Markdown features",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc ",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "build": "tsc",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.mjs",
     "prepare": "npm run build"
   },
   "keywords": [
