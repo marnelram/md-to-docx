@@ -13,7 +13,7 @@ import {
   WidthType,
   Packer,
 } from "docx";
-import { saveAs } from "file-saver";
+import saveAs from "file-saver";
 
 export interface Style {
   titleSize: number;

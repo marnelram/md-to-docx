@@ -50,9 +50,11 @@ COMMENT: This is a comment
 
     // Save the file for manual inspection
     const outputPath = path.join(outputDir, "test-output.docx");
-    fs.writeFileSync(outputPath, buffer);
+    const arrayBuffer = await buffer.arrayBuffer();
+    fs.writeFileSync(outputPath, Buffer.from(arrayBuffer));
 
     // Verify the buffer is not empty
-    expect(buffer.length).toBeGreaterThan(0);
+    const size = await buffer.size;
+    expect(size).toBeGreaterThan(0);
   });
 });
