@@ -2,6 +2,10 @@
 
 A powerful TypeScript module that converts Markdown text to Microsoft Word (.docx) documents with support for various Markdown features. Perfect for both Node.js and browser environments.
 
+## Github Repo (Open Source)
+
+[https://github.com/MohtashamMurshid/md-to-docx]
+
 ## Features
 
 - 🎯 Convert Markdown to DOCX format
