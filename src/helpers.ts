@@ -29,6 +29,7 @@ export function processHeading(
   documentType: "document" | "report"
 ): Paragraph {
   const headingText = line.replace(new RegExp(`^#{${config.level}} `), "");
+  const headingLevel = config.level;
 
   return new Paragraph({
     children: [
@@ -40,7 +41,7 @@ export function processHeading(
       }),
     ],
     heading:
-      config.level as unknown as (typeof HeadingLevel)[keyof typeof HeadingLevel],
+      headingLevel as unknown as (typeof HeadingLevel)[keyof typeof HeadingLevel],
     spacing: {
       before:
         config.level === 1 ? style.headingSpacing * 2 : style.headingSpacing,
@@ -49,7 +50,7 @@ export function processHeading(
     alignment: config.alignment
       ? (AlignmentType as any)[config.alignment]
       : undefined,
-    style: documentType === "report" && config.style ? config.style : undefined,
+    style: `Heading${headingLevel}`, // This is crucial for TOC recognition
   });
 }
 

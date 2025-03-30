@@ -8,7 +8,7 @@ import {
   Table,
 } from "docx";
 import saveAs from "file-saver";
-import { Options, Style, TableData, headingConfigs } from "./types";
+import { Options, Style, headingConfigs } from "./types";
 import {
   processHeading,
   processTable,
@@ -39,6 +39,9 @@ export { Options, TableData } from "./types";
 
 /**
  * Custom error class for markdown conversion errors
+ * @extends Error
+ * @param message - The error message
+ * @param context - The context of the error
  */
 export class MarkdownConversionError extends Error {
   constructor(message: string, public context?: any) {
@@ -404,6 +407,9 @@ export async function convertMarkdownToDocx(
           {
             id: "Title",
             name: "Title",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
             run: {
               size: style.titleSize,
               bold: true,
@@ -420,8 +426,11 @@ export async function convertMarkdownToDocx(
           {
             id: "Heading1",
             name: "Heading 1",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
             run: {
-              size: 28,
+              size: 32,
               bold: true,
               color: "000000",
             },
@@ -430,13 +439,17 @@ export async function convertMarkdownToDocx(
                 before: 360,
                 after: 240,
               },
+              outlineLevel: 1,
             },
           },
           {
             id: "Heading2",
             name: "Heading 2",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
             run: {
-              size: 24,
+              size: 28,
               bold: true,
               color: "000000",
             },
@@ -445,13 +458,17 @@ export async function convertMarkdownToDocx(
                 before: 320,
                 after: 160,
               },
+              outlineLevel: 2,
             },
           },
           {
             id: "Heading3",
             name: "Heading 3",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
             run: {
-              size: 22,
+              size: 24,
               bold: true,
               color: "000000",
             },
@@ -460,11 +477,15 @@ export async function convertMarkdownToDocx(
                 before: 280,
                 after: 120,
               },
+              outlineLevel: 3,
             },
           },
           {
             id: "Heading4",
             name: "Heading 4",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
             run: {
               size: 20,
               bold: true,
@@ -475,11 +496,15 @@ export async function convertMarkdownToDocx(
                 before: 240,
                 after: 120,
               },
+              outlineLevel: 4,
             },
           },
           {
             id: "Heading5",
             name: "Heading 5",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
             run: {
               size: 18,
               bold: true,
@@ -490,6 +515,7 @@ export async function convertMarkdownToDocx(
                 before: 220,
                 after: 100,
               },
+              outlineLevel: 5,
             },
           },
           {
