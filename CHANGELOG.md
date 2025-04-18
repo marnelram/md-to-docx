@@ -53,3 +53,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for comments
 - Customizable styling
 - Report and document modes
+
+## [1.3.0] - 2025-03-31
+
+### Added
+
+- Text alignment support for all document elements
+  - Paragraph alignment (LEFT, RIGHT, CENTER, JUSTIFIED)
+  - Blockquote alignment (LEFT, CENTER, RIGHT)
+  - Default heading alignments (H1: CENTER, H2: RIGHT, others: LEFT)
+  - Configurable alignment through style options
+- Enhanced documentation with text alignment examples

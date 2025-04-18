@@ -23,6 +23,7 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 - 🔗 Support for links
 - ~~Strikethrough~~ text support
 - 📏 Custom font sizes for all elements
+- ⚖️ Text alignment control for all elements
 
 ## Installation
 
@@ -92,7 +93,6 @@ const options = {
     headingSpacing: 240,
     paragraphSpacing: 240,
     lineSpacing: 1.15,
-    // Custom font sizes for different elements
     heading1Size: 32,
     heading2Size: 28,
     heading3Size: 24,
@@ -102,10 +102,41 @@ const options = {
     listItemSize: 24,
     codeBlockSize: 20,
     blockquoteSize: 24,
+    paragraphAlignment: "JUSTIFIED",
+    blockquoteAlignment: "CENTER",
   },
 };
 
 const blob = await convertMarkdownToDocx(markdown, options);
+```
+
+### Text Alignment Example
+
+```typescript
+const markdownWithAlignment = `
+# Centered Title
+
+## Right-Aligned Subtitle
+
+This is a justified paragraph that demonstrates how text can be spread evenly across the width of the page. This creates a clean, professional look with straight edges on both the left and right margins.
+
+> This is a centered blockquote that stands out from the regular text.
+
+This is a left-aligned paragraph (default alignment) that shows the standard text positioning.
+`;
+
+const alignmentOptions = {
+  documentType: "document",
+  style: {
+    paragraphAlignment: "JUSTIFIED",
+    blockquoteAlignment: "CENTER",
+  },
+};
+
+const blob = await convertMarkdownToDocx(
+  markdownWithAlignment,
+  alignmentOptions
+);
 ```
 
 ### In React
@@ -150,19 +181,20 @@ Converts Markdown text to a DOCX document.
 - `options` (object, optional): Configuration options
   - `documentType` (string): Either 'document' or 'report'
   - `style` (object): Styling options
-    - `titleSize` (number): Font size for titles
-    - `headingSpacing` (number): Spacing before/after headings
-    - `paragraphSpacing` (number): Spacing before/after paragraphs
-    - `lineSpacing` (number): Line spacing multiplier
-    - `heading1Size` (number): Font size for H1 headings
-    - `heading2Size` (number): Font size for H2 headings
-    - `heading3Size` (number): Font size for H3 headings
-    - `heading4Size` (number): Font size for H4 headings
-    - `heading5Size` (number): Font size for H5 headings
-    - `paragraphSize` (number): Font size for paragraphs
-    - `listItemSize` (number): Font size for list items
-    - `codeBlockSize` (number): Font size for code blocks
-    - `blockquoteSize` (number): Font size for blockquotes
+    - Text Sizes:
+      - `titleSize` (number): Font size for titles
+      - `heading1Size` through `heading5Size` (number): Font sizes for H1-H5
+      - `paragraphSize` (number): Font size for paragraphs
+      - `listItemSize` (number): Font size for list items
+      - `codeBlockSize` (number): Font size for code blocks
+      - `blockquoteSize` (number): Font size for blockquotes
+    - Spacing:
+      - `headingSpacing` (number): Spacing before/after headings
+      - `paragraphSpacing` (number): Spacing before/after paragraphs
+      - `lineSpacing` (number): Line spacing multiplier
+    - Alignment:
+      - `paragraphAlignment` (string): "LEFT" | "RIGHT" | "CENTER" | "JUSTIFIED"
+      - `blockquoteAlignment` (string): "LEFT" | "RIGHT" | "CENTER"
 
 #### Returns
 
