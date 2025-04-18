@@ -21,6 +21,7 @@ import {
   processLink,
   processLinkParagraph,
   processImage,
+  processParagraph,
 } from "./helpers";
 
 const defaultStyle: Style = {
@@ -28,6 +29,7 @@ const defaultStyle: Style = {
   headingSpacing: 240,
   paragraphSpacing: 240,
   lineSpacing: 1.15,
+  paragraphAlignment: "LEFT",
 };
 
 const defaultOptions: Options = {
@@ -171,8 +173,15 @@ export async function convertMarkdownToDocx(
                 listItems = [];
                 inList = false;
               }
+              // Only apply heading-specific alignment if defined in the level config
+              const config = {
+                ...headingConfigs[level],
+                // Only set alignment from style if heading doesn't already have one
+                alignment:
+                  headingConfigs[level].alignment || style.headingAlignment,
+              };
               docChildren.push(
-                processHeading(line, headingConfigs[level], style, documentType)
+                processHeading(line, config, style, documentType)
               );
               continue;
             }
@@ -325,16 +334,7 @@ export async function convertMarkdownToDocx(
         // Regular paragraph text with special formatting
         if (!inList) {
           try {
-            docChildren.push(
-              new Paragraph({
-                children: processFormattedText(line),
-                spacing: {
-                  before: style.paragraphSpacing,
-                  after: style.paragraphSpacing,
-                  line: style.lineSpacing * 240,
-                },
-              })
-            );
+            docChildren.push(processParagraph(line, style));
           } catch (error) {
             // Fallback to plain text if formatting fails
             console.warn(
@@ -348,6 +348,7 @@ export async function convertMarkdownToDocx(
                   new TextRun({
                     text: line,
                     color: "000000",
+                    size: style.paragraphSize || 24,
                   }),
                 ],
                 spacing: {
@@ -355,9 +356,13 @@ export async function convertMarkdownToDocx(
                   after: style.paragraphSpacing,
                   line: style.lineSpacing * 240,
                 },
+                alignment: style.paragraphAlignment
+                  ? (AlignmentType as any)[style.paragraphAlignment]
+                  : undefined,
               })
             );
           }
+          continue;
         }
       } catch (error) {
         // Log error and continue with next line

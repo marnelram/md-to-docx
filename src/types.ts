@@ -15,6 +15,10 @@ export interface Style {
   listItemSize?: number;
   codeBlockSize?: number;
   blockquoteSize?: number;
+  // Alignment options
+  paragraphAlignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  headingAlignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  blockquoteAlignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
 }
 
 export interface Options {
@@ -60,11 +64,15 @@ export const defaultStyle: Style = {
   listItemSize: 24,
   codeBlockSize: 20,
   blockquoteSize: 24,
+  // Default alignments
+  paragraphAlignment: "LEFT",
+  headingAlignment: "LEFT",
+  blockquoteAlignment: "LEFT",
 };
 
 export const headingConfigs: Record<number, HeadingConfig> = {
   1: { level: 1, size: 0, style: "Title", alignment: "CENTER" },
-  2: { level: 2, size: 0, style: "Heading2" },
+  2: { level: 2, size: 0, style: "Heading2", alignment: "RIGHT" },
   3: { level: 3, size: 0 },
   4: { level: 4, size: 0 },
   5: { level: 5, size: 0 },

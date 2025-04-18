@@ -50,6 +50,39 @@ export function processHeading(
     headingSize = style.titleSize - (headingLevel - 1) * 4;
   }
 
+  // Determine alignment directly from config or style
+  let alignment;
+
+  // Check if a specific alignment is defined in the config
+  if (config.alignment) {
+    // Map string alignment to AlignmentType
+    if (config.alignment === "CENTER") {
+      alignment = AlignmentType.CENTER;
+    } else if (config.alignment === "RIGHT") {
+      alignment = AlignmentType.RIGHT;
+    } else if (config.alignment === "JUSTIFIED") {
+      alignment = AlignmentType.JUSTIFIED;
+    } else if (config.alignment === "LEFT") {
+      alignment = AlignmentType.LEFT;
+    }
+  }
+  // Otherwise check if the style provides a default for headings
+  else if (style.headingAlignment) {
+    // Map string alignment to AlignmentType
+    if (style.headingAlignment === "CENTER") {
+      alignment = AlignmentType.CENTER;
+    } else if (style.headingAlignment === "RIGHT") {
+      alignment = AlignmentType.RIGHT;
+    } else if (style.headingAlignment === "JUSTIFIED") {
+      alignment = AlignmentType.JUSTIFIED;
+    } else if (style.headingAlignment === "LEFT") {
+      alignment = AlignmentType.LEFT;
+    }
+  }
+
+  // Log the alignment for debugging
+  console.log(`Heading Level ${headingLevel} alignment: ${alignment}`);
+
   return new Paragraph({
     children: [
       new TextRun({
@@ -66,9 +99,7 @@ export function processHeading(
         config.level === 1 ? style.headingSpacing * 2 : style.headingSpacing,
       after: style.headingSpacing / 2,
     },
-    alignment: config.alignment
-      ? (AlignmentType as any)[config.alignment]
-      : undefined,
+    alignment: alignment,
     style: `Heading${headingLevel}`, // This is crucial for TOC recognition
   });
 }
@@ -189,6 +220,28 @@ export function processListItem(
  * @returns The processed paragraph
  */
 export function processBlockquote(text: string, style: Style): Paragraph {
+  // Determine alignment for blockquote - only if explicitly set
+  let alignment = undefined;
+  if (style.blockquoteAlignment) {
+    switch (style.blockquoteAlignment) {
+      case "LEFT":
+        alignment = AlignmentType.LEFT;
+        break;
+      case "CENTER":
+        alignment = AlignmentType.CENTER;
+        break;
+      case "RIGHT":
+        alignment = AlignmentType.RIGHT;
+        break;
+      case "JUSTIFIED":
+        alignment = AlignmentType.JUSTIFIED;
+        break;
+      default:
+        // Don't set alignment if not explicitly defined
+        alignment = undefined;
+    }
+  }
+
   return new Paragraph({
     children: [
       new TextRun({
@@ -212,6 +265,7 @@ export function processBlockquote(text: string, style: Style): Paragraph {
         color: "AAAAAA",
       },
     },
+    alignment: alignment,
   });
 }
 
@@ -240,9 +294,10 @@ export function processComment(text: string, style: Style): Paragraph {
 /**
  * Processes formatted text (bold/italic/inline-code) and returns an array of TextRun objects
  * @param line - The line to process
+ * @param style - The style configuration
  * @returns An array of TextRun objects
  */
-export function processFormattedText(line: string): TextRun[] {
+export function processFormattedText(line: string, style?: Style): TextRun[] {
   const textRuns: TextRun[] = [];
   let currentText = "";
   let isBold = false;
@@ -260,10 +315,11 @@ export function processFormattedText(line: string): TextRun[] {
               bold: isBold,
               italics: isItalic,
               color: "000000",
+              size: style?.paragraphSize || 24,
             })
           );
         } else {
-          textRuns.push(processInlineCode(currentText));
+          textRuns.push(processInlineCode(currentText, style));
         }
         currentText = "";
       }
@@ -281,10 +337,11 @@ export function processFormattedText(line: string): TextRun[] {
               bold: isBold,
               italics: isItalic,
               color: "000000",
+              size: style?.paragraphSize || 24,
             })
           );
         } else {
-          textRuns.push(processInlineCode(currentText));
+          textRuns.push(processInlineCode(currentText, style));
         }
         currentText = "";
       }
@@ -307,10 +364,11 @@ export function processFormattedText(line: string): TextRun[] {
               bold: isBold,
               italics: isItalic,
               color: "000000",
+              size: style?.paragraphSize || 24,
             })
           );
         } else {
-          textRuns.push(processInlineCode(currentText));
+          textRuns.push(processInlineCode(currentText, style));
         }
         currentText = "";
       }
@@ -318,9 +376,32 @@ export function processFormattedText(line: string): TextRun[] {
       continue;
     }
 
+    // Handle strikethrough with ~~ markers
+    if (j + 1 < line.length && line[j] === "~" && line[j + 1] === "~") {
+      if (currentText) {
+        if (!isInlineCode) {
+          textRuns.push(
+            new TextRun({
+              text: currentText,
+              bold: isBold,
+              italics: isItalic,
+              color: "000000",
+              size: style?.paragraphSize || 24,
+            })
+          );
+        } else {
+          textRuns.push(processInlineCode(currentText, style));
+        }
+        currentText = "";
+      }
+      j++;
+      continue;
+    }
+
     currentText += line[j];
   }
 
+  // Add any remaining text
   if (currentText) {
     if (!isInlineCode) {
       textRuns.push(
@@ -329,10 +410,11 @@ export function processFormattedText(line: string): TextRun[] {
           bold: isBold,
           italics: isItalic,
           color: "000000",
+          size: style?.paragraphSize || 24,
         })
       );
     } else {
-      textRuns.push(processInlineCode(currentText));
+      textRuns.push(processInlineCode(currentText, style));
     }
   }
 
@@ -376,13 +458,14 @@ export function collectTables(lines: string[]): TableData[] {
 /**
  * Processes inline code and returns a TextRun object
  * @param code - The inline code text
+ * @param style - The style configuration
  * @returns A TextRun object
  */
-export function processInlineCode(code: string): TextRun {
+export function processInlineCode(code: string, style?: Style): TextRun {
   return new TextRun({
     text: code,
     font: "Courier New",
-    size: 20,
+    size: style?.paragraphSize ? style.paragraphSize - 2 : 20,
     color: "444444",
     shading: {
       fill: "F5F5F5",
@@ -667,6 +750,28 @@ export function processParagraph(text: string, style: Style): Paragraph {
     }
   });
 
+  // Default alignment uses direct enum value
+  const alignment = style.paragraphAlignment
+    ? style.paragraphAlignment === "CENTER"
+      ? AlignmentType.CENTER
+      : style.paragraphAlignment === "RIGHT"
+      ? AlignmentType.RIGHT
+      : style.paragraphAlignment === "JUSTIFIED"
+      ? AlignmentType.JUSTIFIED
+      : AlignmentType.LEFT
+    : AlignmentType.LEFT;
+
+  // Log the alignment for debugging
+  console.log(
+    `Paragraph alignment: ${alignment}, Style alignment: ${style.paragraphAlignment}`
+  );
+
+  // Only apply indent for justified text
+  const indent =
+    style.paragraphAlignment === "JUSTIFIED"
+      ? { left: 0, right: 0 }
+      : undefined;
+
   return new Paragraph({
     children: textRuns,
     spacing: {
@@ -674,5 +779,7 @@ export function processParagraph(text: string, style: Style): Paragraph {
       after: style.paragraphSpacing,
       line: style.lineSpacing * 240,
     },
+    alignment,
+    indent,
   });
 }
