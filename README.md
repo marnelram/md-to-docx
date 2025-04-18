@@ -22,6 +22,7 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 - 💻 Code blocks (inline and multi-line)
 - 🔗 Support for links
 - ~~Strikethrough~~ text support
+- 📏 Custom font sizes for all elements
 
 ## Installation
 
@@ -91,6 +92,16 @@ const options = {
     headingSpacing: 240,
     paragraphSpacing: 240,
     lineSpacing: 1.15,
+    // Custom font sizes for different elements
+    heading1Size: 32,
+    heading2Size: 28,
+    heading3Size: 24,
+    heading4Size: 20,
+    heading5Size: 18,
+    paragraphSize: 24,
+    listItemSize: 24,
+    codeBlockSize: 20,
+    blockquoteSize: 24,
   },
 };
 
@@ -143,6 +154,15 @@ Converts Markdown text to a DOCX document.
     - `headingSpacing` (number): Spacing before/after headings
     - `paragraphSpacing` (number): Spacing before/after paragraphs
     - `lineSpacing` (number): Line spacing multiplier
+    - `heading1Size` (number): Font size for H1 headings
+    - `heading2Size` (number): Font size for H2 headings
+    - `heading3Size` (number): Font size for H3 headings
+    - `heading4Size` (number): Font size for H4 headings
+    - `heading5Size` (number): Font size for H5 headings
+    - `paragraphSize` (number): Font size for paragraphs
+    - `listItemSize` (number): Font size for list items
+    - `codeBlockSize` (number): Font size for code blocks
+    - `blockquoteSize` (number): Font size for blockquotes
 
 #### Returns
 

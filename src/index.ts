@@ -418,7 +418,7 @@ export async function convertMarkdownToDocx(
             paragraph: {
               spacing: {
                 after: 240,
-                line: 1.15 * 240,
+                line: style.lineSpacing * 240,
               },
               alignment: AlignmentType.CENTER,
             },
@@ -430,7 +430,7 @@ export async function convertMarkdownToDocx(
             next: "Normal",
             quickFormat: true,
             run: {
-              size: 32,
+              size: style.titleSize,
               bold: true,
               color: "000000",
             },
@@ -449,7 +449,7 @@ export async function convertMarkdownToDocx(
             next: "Normal",
             quickFormat: true,
             run: {
-              size: 28,
+              size: style.titleSize - 4,
               bold: true,
               color: "000000",
             },
@@ -468,7 +468,7 @@ export async function convertMarkdownToDocx(
             next: "Normal",
             quickFormat: true,
             run: {
-              size: 24,
+              size: style.titleSize - 8,
               bold: true,
               color: "000000",
             },
@@ -487,7 +487,7 @@ export async function convertMarkdownToDocx(
             next: "Normal",
             quickFormat: true,
             run: {
-              size: 20,
+              size: style.titleSize - 12,
               bold: true,
               color: "000000",
             },
@@ -506,7 +506,7 @@ export async function convertMarkdownToDocx(
             next: "Normal",
             quickFormat: true,
             run: {
-              size: 18,
+              size: style.titleSize - 16,
               bold: true,
               color: "000000",
             },
