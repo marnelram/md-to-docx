@@ -31,12 +31,31 @@ export function processHeading(
   const headingText = line.replace(new RegExp(`^#{${config.level}} `), "");
   const headingLevel = config.level;
 
+  // Get the appropriate font size based on heading level and custom style
+  let headingSize = style.titleSize;
+
+  // Use specific heading size if provided, otherwise calculate based on level
+  if (headingLevel === 1 && style.heading1Size) {
+    headingSize = style.heading1Size;
+  } else if (headingLevel === 2 && style.heading2Size) {
+    headingSize = style.heading2Size;
+  } else if (headingLevel === 3 && style.heading3Size) {
+    headingSize = style.heading3Size;
+  } else if (headingLevel === 4 && style.heading4Size) {
+    headingSize = style.heading4Size;
+  } else if (headingLevel === 5 && style.heading5Size) {
+    headingSize = style.heading5Size;
+  } else if (headingLevel > 1) {
+    // Fallback calculation if specific size not provided
+    headingSize = style.titleSize - (headingLevel - 1) * 4;
+  }
+
   return new Paragraph({
     children: [
       new TextRun({
         text: headingText,
         bold: true,
-        size: config.size,
+        size: headingSize,
         color: "000000",
       }),
     ],
@@ -136,6 +155,7 @@ export function processListItem(
     new TextRun({
       text: config.text + (config.boldText ? "\n" : ""),
       color: "000000",
+      size: style.listItemSize || 24, // Use custom list item size if provided
     }),
   ];
 
@@ -145,6 +165,7 @@ export function processListItem(
         text: config.boldText,
         bold: true,
         color: "000000",
+        size: style.listItemSize || 24, // Use custom list item size if provided
       })
     );
   }
@@ -174,6 +195,7 @@ export function processBlockquote(text: string, style: Style): Paragraph {
         text: text,
         italics: true,
         color: "000000",
+        size: style.blockquoteSize || 24, // Use custom blockquote size if provided
       }),
     ],
     indent: {
@@ -369,7 +391,7 @@ export function processInlineCode(code: string): TextRun {
 }
 
 /**
- * Processes a multi-line code block and returns a paragraph
+ * Processes a code block and returns appropriate paragraph formatting
  * @param code - The code block text
  * @param language - The programming language (optional)
  * @param style - The style configuration
@@ -392,14 +414,14 @@ export function processCodeBlock(
       new TextRun({
         text: language,
         font: "Courier New",
-        size: 18,
+        size: style.codeBlockSize || 18,
         color: "666666",
         bold: true,
       }),
       new TextRun({
         text: "\n",
         font: "Courier New",
-        size: 18,
+        size: style.codeBlockSize || 18,
         break: 1,
       })
     );
@@ -417,7 +439,7 @@ export function processCodeBlock(
       new TextRun({
         text: processedLine,
         font: "Courier New",
-        size: 20,
+        size: style.codeBlockSize || 20,
         color: "444444",
       })
     );
@@ -428,7 +450,7 @@ export function processCodeBlock(
         new TextRun({
           text: "\n",
           font: "Courier New",
-          size: 20,
+          size: style.codeBlockSize || 20,
           break: 1,
         })
       );
@@ -596,4 +618,61 @@ export async function processImage(
       }),
     ];
   }
+}
+
+/**
+ * Processes a paragraph and returns appropriate paragraph formatting
+ * @param text - The paragraph text
+ * @param style - The style configuration
+ * @returns The processed paragraph
+ */
+export function processParagraph(text: string, style: Style): Paragraph {
+  // Split the text into words
+  const words = text.split(/\s+/);
+
+  // Create text runs for each word
+  const textRuns: TextRun[] = [];
+
+  // Process each word
+  words.forEach((word, index) => {
+    // Check if the word is bold
+    if (word.startsWith("**") && word.endsWith("**")) {
+      // Remove the bold markers
+      const boldText = word.slice(2, -2);
+      textRuns.push(
+        new TextRun({
+          text: boldText,
+          bold: true,
+          size: style.paragraphSize || 24,
+        })
+      );
+    } else {
+      // Regular text
+      textRuns.push(
+        new TextRun({
+          text: word,
+          size: style.paragraphSize || 24,
+        })
+      );
+    }
+
+    // Add space between words if not the last word
+    if (index < words.length - 1) {
+      textRuns.push(
+        new TextRun({
+          text: " ",
+          size: style.paragraphSize || 24,
+        })
+      );
+    }
+  });
+
+  return new Paragraph({
+    children: textRuns,
+    spacing: {
+      before: style.paragraphSpacing,
+      after: style.paragraphSpacing,
+      line: style.lineSpacing * 240,
+    },
+  });
 }

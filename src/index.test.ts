@@ -169,4 +169,44 @@ COMMENT: This is a comment
     const size = await buffer.size;
     expect(size).toBeGreaterThan(0);
   });
+
+  it("should handle custom options correctly", async () => {
+    console.log("Starting custom options test");
+    const markdown = `
+# Custom Options Test
+## Subtitle
+This is a test with custom styling options.
+
+- Bullet point 1
+- Bullet point 2
+
+1. Numbered item 1
+2. Numbered item 2
+`;
+
+    const customOptions = {
+      documentType: "report" as const,
+      style: {
+        titleSize: 40, // Larger than default
+
+        headingSpacing: 480, // Double the default
+        paragraphSpacing: 360, // 1.5x the default
+        lineSpacing: 1.5, // Increased from default
+      },
+    };
+
+    console.log("Converting markdown with custom options");
+    const buffer = await convertMarkdownToDocx(markdown, customOptions);
+    console.log("Conversion complete, buffer size:", await buffer.size);
+
+    // Save the file for manual inspection
+    const outputPath = path.join(outputDir, "custom-options-test.docx");
+    const arrayBuffer = await buffer.arrayBuffer();
+    fs.writeFileSync(outputPath, Buffer.from(arrayBuffer));
+    console.log("File saved to:", outputPath);
+
+    // Verify the buffer is not empty
+    const size = await buffer.size;
+    expect(size).toBeGreaterThan(0);
+  });
 });
