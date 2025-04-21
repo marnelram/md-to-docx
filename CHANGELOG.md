@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-04-19
+
+### Changed
+
+- Reorganized test files into dedicated `tests` directory
+- Improved test organization and structure
+- Enhanced test coverage for list formatting features
+
+## [1.4.0] - 2025-04-19
+
+### Added
+
+- Enhanced text alignment support with improved justification handling
+- Better spacing control for justified text
+- Improved paragraph formatting with dynamic spacing
+
+### Changed
+
+- Updated text alignment implementation for better compatibility
+- Refined default alignment settings for better document consistency
+
+## [1.3.1] - 2025-04-18
+
+### Changed
+
+- Updated default heading alignments to be consistently left-aligned
+- Improved heading alignment configuration with individual level controls
+
+## [1.3.0] - 2025-03-31
+
+### Added
+
+- Text alignment support for all document elements
+  - Paragraph alignment (LEFT, RIGHT, CENTER, JUSTIFIED)
+  - Blockquote alignment (LEFT, CENTER, RIGHT)
+  - Default heading alignments (H1: CENTER, H2: RIGHT, others: LEFT)
+  - Configurable alignment through style options
+- Enhanced documentation with text alignment examples
+
 ## [1.2.2] - 2025-03-31
 
 ### Added
@@ -53,14 +92,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for comments
 - Customizable styling
 - Report and document modes
-
-## [1.3.0] - 2025-03-31
-
-### Added
-
-- Text alignment support for all document elements
-  - Paragraph alignment (LEFT, RIGHT, CENTER, JUSTIFIED)
-  - Blockquote alignment (LEFT, CENTER, RIGHT)
-  - Default heading alignments (H1: CENTER, H2: RIGHT, others: LEFT)
-  - Configurable alignment through style options
-- Enhanced documentation with text alignment examples

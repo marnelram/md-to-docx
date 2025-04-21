@@ -50,38 +50,24 @@ export function processHeading(
     headingSize = style.titleSize - (headingLevel - 1) * 4;
   }
 
-  // Determine alignment directly from config or style
+  // Determine alignment based on heading level
   let alignment;
 
-  // Check if a specific alignment is defined in the config
-  if (config.alignment) {
-    // Map string alignment to AlignmentType
-    if (config.alignment === "CENTER") {
-      alignment = AlignmentType.CENTER;
-    } else if (config.alignment === "RIGHT") {
-      alignment = AlignmentType.RIGHT;
-    } else if (config.alignment === "JUSTIFIED") {
-      alignment = AlignmentType.JUSTIFIED;
-    } else if (config.alignment === "LEFT") {
-      alignment = AlignmentType.LEFT;
-    }
+  // Check for level-specific alignment first
+  if (headingLevel === 1 && style.heading1Alignment) {
+    alignment = AlignmentType[style.heading1Alignment];
+  } else if (headingLevel === 2 && style.heading2Alignment) {
+    alignment = AlignmentType[style.heading2Alignment];
+  } else if (headingLevel === 3 && style.heading3Alignment) {
+    alignment = AlignmentType[style.heading3Alignment];
+  } else if (headingLevel === 4 && style.heading4Alignment) {
+    alignment = AlignmentType[style.heading4Alignment];
+  } else if (headingLevel === 5 && style.heading5Alignment) {
+    alignment = AlignmentType[style.heading5Alignment];
+  } else if (style.headingAlignment) {
+    // Fallback to general heading alignment if no level-specific alignment
+    alignment = AlignmentType[style.headingAlignment];
   }
-  // Otherwise check if the style provides a default for headings
-  else if (style.headingAlignment) {
-    // Map string alignment to AlignmentType
-    if (style.headingAlignment === "CENTER") {
-      alignment = AlignmentType.CENTER;
-    } else if (style.headingAlignment === "RIGHT") {
-      alignment = AlignmentType.RIGHT;
-    } else if (style.headingAlignment === "JUSTIFIED") {
-      alignment = AlignmentType.JUSTIFIED;
-    } else if (style.headingAlignment === "LEFT") {
-      alignment = AlignmentType.LEFT;
-    }
-  }
-
-  // Log the alignment for debugging
-  console.log(`Heading Level ${headingLevel} alignment: ${alignment}`);
 
   return new Paragraph({
     children: [
@@ -182,21 +168,21 @@ export function processListItem(
   config: ListItemConfig,
   style: Style
 ): Paragraph {
-  const children: TextRun[] = [
-    new TextRun({
-      text: config.text + (config.boldText ? "\n" : ""),
-      color: "000000",
-      size: style.listItemSize || 24, // Use custom list item size if provided
-    }),
-  ];
+  // Process the main text with formatting
+  const children = processFormattedText(config.text, style);
 
+  // If there's bold text on the next line, add it with a line break
   if (config.boldText) {
     children.push(
+      new TextRun({
+        text: "\n",
+        size: style.listItemSize || 24,
+      }),
       new TextRun({
         text: config.boldText,
         bold: true,
         color: "000000",
-        size: style.listItemSize || 24, // Use custom list item size if provided
+        size: style.listItemSize || 24,
       })
     );
   }

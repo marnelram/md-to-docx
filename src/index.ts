@@ -240,8 +240,12 @@ export async function convertMarkdownToDocx(
 
           // Check if there's a bold section on the next line
           let boldText = "";
-          if (i + 1 < lines.length && lines[i + 1].trim().startsWith("**")) {
-            boldText = lines[i + 1].trim().replace(/\*\*/g, "");
+          if (
+            i + 1 < lines.length &&
+            lines[i + 1].trim().startsWith("**") &&
+            lines[i + 1].trim().endsWith("**")
+          ) {
+            boldText = lines[i + 1].trim().slice(2, -2); // Remove ** markers
             i++;
           }
 

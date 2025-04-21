@@ -10,9 +10,9 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 
 - 🎯 Convert Markdown to DOCX format
 - 📝 Support for all heading levels (H1-H5)
-- 📋 Bullet points and numbered lists
+- 📋 Bullet points and numbered lists with rich formatting
 - 📊 Tables with headers and data
-- 🔤 Bold and italic text formatting
+- 🔤 Bold and italic text formatting (including in lists)
 - 💬 Blockquotes
 - 💡 Comments
 - 🎨 Customizable styling
@@ -24,6 +24,7 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 - ~~Strikethrough~~ text support
 - 📏 Custom font sizes for all elements
 - ⚖️ Text alignment control for all elements
+- 🧪 Comprehensive test coverage
 
 ## Installation
 
@@ -43,12 +44,12 @@ const markdown = `
 ## Subtitle
 This is a paragraph with **bold** and *italic* text.
 
-- Bullet point 1
-- Bullet point 2
-  **Bold text in list**
+- Bullet point with **bold text** inside
+- Another point with *italic* and \`code\`
+  **Bold text on next line**
 
-1. Numbered item 1
-2. Numbered item 2
+1. Numbered item with **bold** formatting
+2. Another item with mixed **bold** and *italic*
 
 > This is a blockquote
 
@@ -57,23 +58,15 @@ This is a paragraph with **bold** and *italic* text.
 | Cell 1   | Cell 2   |
 | Cell 3   | Cell 4   |
 
-# Multi-line Code Block
 \`\`\`typescript
 function hello(name: string): string {
   return \`Hello, \${name}!\`;
 }
-
-const result = hello("World");
-console.log(result);
 \`\`\`
-
-# Image Test
-This is a test with an embedded image.
 
 ![Test Image](https://picsum.photos/200/200)
 
 COMMENT: This is a comment
-
 `;
 
 // Convert to DOCX
@@ -114,9 +107,9 @@ const blob = await convertMarkdownToDocx(markdown, options);
 
 ```typescript
 const markdownWithAlignment = `
-# Centered Title
+# Left-Aligned Heading 1
 
-## Right-Aligned Subtitle
+## Left-Aligned Heading 2
 
 This is a justified paragraph that demonstrates how text can be spread evenly across the width of the page. This creates a clean, professional look with straight edges on both the left and right margins.
 
@@ -130,6 +123,7 @@ const alignmentOptions = {
   style: {
     paragraphAlignment: "JUSTIFIED",
     blockquoteAlignment: "CENTER",
+    // All headings default to LEFT alignment
   },
 };
 
@@ -137,6 +131,38 @@ const blob = await convertMarkdownToDocx(
   markdownWithAlignment,
   alignmentOptions
 );
+```
+
+### Custom Heading Alignments
+
+You can customize the alignment for each heading level individually:
+
+```typescript
+const customHeadingOptions = {
+  documentType: "document",
+  style: {
+    // Individual heading alignments
+    heading1Alignment: "CENTER", // H1 will be centered
+    heading2Alignment: "RIGHT", // H2 will be right-aligned
+    heading3Alignment: "JUSTIFIED", // H3 will be justified
+    heading4Alignment: "LEFT", // H4 will be left-aligned
+    heading5Alignment: "CENTER", // H5 will be centered
+
+    // Other style options
+    paragraphAlignment: "LEFT", // Paragraphs will be left-aligned
+    blockquoteAlignment: "LEFT", // Blockquotes will be left-aligned
+  },
+};
+
+const markdown = `
+# This will be centered
+## This will be right-aligned
+### This will be justified
+#### This will be left-aligned
+##### This will be centered
+`;
+
+const blob = await convertMarkdownToDocx(markdown, customHeadingOptions);
 ```
 
 ### In React
@@ -194,7 +220,9 @@ Converts Markdown text to a DOCX document.
       - `lineSpacing` (number): Line spacing multiplier
     - Alignment:
       - `paragraphAlignment` (string): "LEFT" | "RIGHT" | "CENTER" | "JUSTIFIED"
-      - `blockquoteAlignment` (string): "LEFT" | "RIGHT" | "CENTER"
+      - `headingAlignment` (string): "LEFT" | "RIGHT" | "CENTER" | "JUSTIFIED" (fallback for all headings)
+      - `heading1Alignment` through `heading5Alignment` (string): Individual heading level alignments
+      - `blockquoteAlignment` (string): "LEFT" | "RIGHT" | "CENTER" | "JUSTIFIED"
 
 #### Returns
 
@@ -239,3 +267,24 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## List Formatting Examples
+
+The module supports rich text formatting within list items:
+
+```typescript
+const markdown = `
+- Regular list item
+- List item with **bold text** inside
+- Item with *italic* and \`code\`
+- Mixed **bold** and *italic* formatting
+- List item
+  **Bold text on next line**
+
+1. Numbered list with **bold text**
+2. Numbered item with \`code\` and *italic*
+3. Mixed **bold** and *italic* text
+`;
+
+const blob = await convertMarkdownToDocx(markdown);
+```

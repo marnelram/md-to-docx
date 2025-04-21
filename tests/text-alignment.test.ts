@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
-import { convertMarkdownToDocx } from "./index";
-import { Options } from "./types";
+import { convertMarkdownToDocx } from "../src/index";
+import { Options } from "../src/types";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

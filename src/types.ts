@@ -1,5 +1,3 @@
-import { Paragraph, Table } from "docx";
-
 export interface Style {
   titleSize: number;
   headingSpacing: number;
@@ -18,6 +16,11 @@ export interface Style {
   // Alignment options
   paragraphAlignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
   headingAlignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  heading1Alignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  heading2Alignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  heading3Alignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  heading4Alignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
+  heading5Alignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
   blockquoteAlignment?: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
 }
 
@@ -66,13 +69,18 @@ export const defaultStyle: Style = {
   blockquoteSize: 24,
   // Default alignments
   paragraphAlignment: "LEFT",
-  headingAlignment: "LEFT",
+  heading1Alignment: "LEFT",
+  heading2Alignment: "LEFT",
+  heading3Alignment: "LEFT",
+  heading4Alignment: "LEFT",
+  heading5Alignment: "LEFT",
   blockquoteAlignment: "LEFT",
+  headingAlignment: "LEFT",
 };
 
 export const headingConfigs: Record<number, HeadingConfig> = {
-  1: { level: 1, size: 0, style: "Title", alignment: "CENTER" },
-  2: { level: 2, size: 0, style: "Heading2", alignment: "RIGHT" },
+  1: { level: 1, size: 0, style: "Title" },
+  2: { level: 2, size: 0, style: "Heading2" },
   3: { level: 3, size: 0 },
   4: { level: 4, size: 0 },
   5: { level: 5, size: 0 },
