@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2025-04-28
+
+### Added
+
+- Automatic page numbering (centered in the footer).
+
+## [1.4.2] - 2025-04-28
+
+### Added
+
+- Table of Contents (TOC) generation via `[TOC]` marker.
+- Clickable internal links from TOC entries to corresponding headings.
+- Page break support via `\pagebreak` command on its own line.
+
 ## [1.4.1] - 2025-04-19
 
 ### Changed

@@ -9,6 +9,9 @@ A powerful TypeScript module that converts Markdown text to Microsoft Word (.doc
 ## Features
 
 - 🎯 Convert Markdown to DOCX format
+- 📚 Table of Contents generation with clickable links (`[TOC]`)
+- 📄 Page break support (`\pagebreak`)
+- #️⃣ Automatic page numbering (centered in footer)
 - 📝 Support for all heading levels (H1-H5)
 - 📋 Bullet points and numbered lists with rich formatting
 - 📊 Tables with headers and data
@@ -247,6 +250,8 @@ Downloads a DOCX file in the browser environment.
 
 The module supports the following Markdown features:
 
+- Table of Contents: `[TOC]` (place on its own line where TOC should appear)
+- Page Breaks: `\pagebreak` (place on its own line to force a page break)
 - Headings: `#`, `##`, `###`, `####`, `#####`
 - Lists: `-`, `*`, `1.`, `2.`, etc.
 - Bold: `**text**`
@@ -287,4 +292,37 @@ const markdown = `
 `;
 
 const blob = await convertMarkdownToDocx(markdown);
+```
+
+### Basic Usage with TOC and Page Breaks
+
+```typescript
+import { convertMarkdownToDocx, downloadDocx } from "@mohtasham/md-to-docx";
+
+const markdown = `
+[TOC]
+
+# Section 1
+
+This is the first section.
+
+## Subsection 1.1
+
+Content for subsection 1.1.
+
+\pagebreak
+
+# Section 2
+
+This is the second section, appearing after a page break.
+
+- Item A
+- Item B
+`;
+
+// Convert to DOCX
+const blob = await convertMarkdownToDocx(markdown);
+
+// Download in browser
+downloadDocx(blob, "output_with_toc.docx");
 ```

@@ -179,6 +179,66 @@ COMMENT: This is a comment
     expect(size).toBeGreaterThan(0);
   });
 
+  it("should handle TOC and Page Break markers", async () => {
+    const markdown = `
+[TOC]
+
+# Section 1
+
+This is the first section.
+
+## Subsection 1.1
+
+Content for subsection 1.1.
+
+\\pagebreak
+
+# Section 2
+
+This is the second section, appearing after a page break.
+
+### Subsection 2.1.1
+
+More content here.
+
+- List item 1
+- List item 2
+`;
+
+    const options: Options = {
+      documentType: "document" as const,
+      style: {
+        // Use default or slightly modified styles for testing
+        titleSize: 30,
+        paragraphSize: 24,
+        lineSpacing: 1.15,
+        // Add missing required properties
+        headingSpacing: 240, // Default value
+        paragraphSpacing: 240, // Default value
+      },
+    };
+
+    let buffer: Blob | null = null;
+    try {
+      buffer = await convertMarkdownToDocx(markdown, options);
+    } catch (error) {
+      // Fail the test if conversion throws an error
+      console.error("TOC/Page Break test failed during conversion:", error);
+      throw error; // Re-throw to make Jest aware of the failure
+    }
+
+    // Verify the buffer is a valid Blob
+    expect(buffer).toBeInstanceOf(Blob);
+    const size = await buffer.size;
+    expect(size).toBeGreaterThan(0);
+
+    // Save the file for manual inspection
+    const outputPath = path.join(outputDir, "test-toc-pagebreak.docx");
+    const arrayBuffer = await buffer.arrayBuffer();
+    fs.writeFileSync(outputPath, Buffer.from(arrayBuffer));
+    console.log("TOC/Page Break test output saved to:", outputPath);
+  });
+
   it("should handle custom options with specific heading alignments", async () => {
     console.log("Starting custom options test");
     const markdown = `

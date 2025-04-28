@@ -6,6 +6,11 @@ import {
   PageOrientation,
   Packer,
   Table,
+  PageBreak,
+  InternalHyperlink,
+  Footer,
+  Header,
+  PageNumber,
 } from "docx";
 import saveAs from "file-saver";
 import { Options, Style, headingConfigs } from "./types";
@@ -107,6 +112,7 @@ export async function convertMarkdownToDocx(
   try {
     const { style = defaultStyle, documentType = "document" } = options;
     const docChildren: (Paragraph | Table)[] = [];
+    const headings: { text: string; level: number; bookmarkId: string }[] = [];
     const lines = markdown.split("\n");
     let inList = false;
     let listItems: Paragraph[] = [];
@@ -118,10 +124,11 @@ export async function convertMarkdownToDocx(
 
     for (let i = 0; i < lines.length; i++) {
       try {
-        const line = lines[i].trim();
+        const line = lines[i];
+        const trimmedLine = line.trim();
 
         // Skip empty lines
-        if (!line) {
+        if (!trimmedLine) {
           if (inCodeBlock) {
             codeBlockContent += "\n";
           }
@@ -134,12 +141,37 @@ export async function convertMarkdownToDocx(
           continue;
         }
 
+        // Handle Page Break
+        if (trimmedLine === "\\pagebreak") {
+          if (inList) {
+            docChildren.push(...listItems);
+            listItems = [];
+            inList = false;
+          }
+          docChildren.push(new Paragraph({ children: [new PageBreak()] }));
+          continue;
+        }
+
+        // Handle TOC Placeholder
+        if (trimmedLine === "[TOC]") {
+          if (inList) {
+            docChildren.push(...listItems);
+            listItems = [];
+            inList = false;
+          }
+          // Create a paragraph and add a unique property to identify it later
+          const tocPlaceholder = new Paragraph({});
+          (tocPlaceholder as any).__isTocPlaceholder = true; // Add temporary marker property
+          docChildren.push(tocPlaceholder);
+          continue;
+        }
+
         // Handle code blocks
-        if (line.startsWith("```")) {
+        if (trimmedLine.startsWith("```")) {
           if (!inCodeBlock) {
             // Start of code block
             inCodeBlock = true;
-            codeBlockLanguage = line.slice(3).trim() || undefined;
+            codeBlockLanguage = trimmedLine.slice(3).trim() || undefined;
             codeBlockContent = "";
           } else {
             // End of code block
@@ -163,8 +195,8 @@ export async function convertMarkdownToDocx(
         }
 
         // Process headings
-        if (line.startsWith("#")) {
-          const match = line.match(/^#+/);
+        if (trimmedLine.startsWith("#")) {
+          const match = trimmedLine.match(/^#+/);
           if (match) {
             const level = match[0].length;
             if (level >= 1 && level <= 5) {
@@ -173,16 +205,17 @@ export async function convertMarkdownToDocx(
                 listItems = [];
                 inList = false;
               }
-              // Only apply heading-specific alignment if defined in the level config
+              const headingText = trimmedLine.substring(level).trim();
               const config = {
                 ...headingConfigs[level],
-                // Only set alignment from style if heading doesn't already have one
                 alignment:
                   headingConfigs[level].alignment || style.headingAlignment,
               };
-              docChildren.push(
-                processHeading(line, config, style, documentType)
-              );
+              const { paragraph: headingParagraph, bookmarkId } =
+                processHeading(trimmedLine, config, style, documentType);
+              headings.push({ text: headingText, level, bookmarkId });
+
+              docChildren.push(headingParagraph);
               continue;
             }
             // Graceful degradation for unsupported heading levels
@@ -193,7 +226,7 @@ export async function convertMarkdownToDocx(
         }
 
         // Handle tables
-        if (line.startsWith("|") && line.endsWith("|")) {
+        if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|")) {
           if (i + 1 < lines.length && lines[i + 1].includes("|-")) {
             if (inList) {
               docChildren.push(...listItems);
@@ -221,7 +254,7 @@ export async function convertMarkdownToDocx(
                   new Paragraph({
                     children: [
                       new TextRun({
-                        text: line.replace(/\|/g, "").trim(),
+                        text: trimmedLine.replace(/\|/g, "").trim(),
                         color: "000000",
                       }),
                     ],
@@ -234,9 +267,9 @@ export async function convertMarkdownToDocx(
         }
 
         // Handle lists
-        if (line.startsWith("- ") || line.startsWith("* ")) {
+        if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
           inList = true;
-          const listText = line.replace(/^[\s-*]+/, "").trim();
+          const listText = trimmedLine.replace(/^[\s-*]+/, "").trim();
 
           // Check if there's a bold section on the next line
           let boldText = "";
@@ -254,9 +287,9 @@ export async function convertMarkdownToDocx(
         }
 
         // Handle numbered lists
-        if (/^\s*\d+\.\s/.test(line)) {
+        if (/^\s*\d+\.\s/.test(trimmedLine)) {
           inList = true;
-          const listText = line.replace(/^\s*\d+\.\s/, "").trim();
+          const listText = trimmedLine.replace(/^\s*\d+\.\s/, "").trim();
           listItems.push(
             processListItem({ text: listText, isNumbered: true }, style)
           );
@@ -264,31 +297,31 @@ export async function convertMarkdownToDocx(
         }
 
         // Handle blockquotes
-        if (line.startsWith("> ")) {
+        if (trimmedLine.startsWith("> ")) {
           if (inList) {
             docChildren.push(...listItems);
             listItems = [];
             inList = false;
           }
-          const quoteText = line.replace(/^>\s*/, "").trim();
+          const quoteText = trimmedLine.replace(/^>\s*/, "").trim();
           docChildren.push(processBlockquote(quoteText, style));
           continue;
         }
 
         // Handle comments
-        if (line.startsWith("COMMENT:")) {
+        if (trimmedLine.startsWith("COMMENT:")) {
           if (inList) {
             docChildren.push(...listItems);
             listItems = [];
             inList = false;
           }
-          const commentText = line.replace(/^COMMENT:\s*/, "").trim();
+          const commentText = trimmedLine.replace(/^COMMENT:\s*/, "").trim();
           docChildren.push(processComment(commentText, style));
           continue;
         }
 
         // Handle images
-        const imageMatch = line.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+        const imageMatch = trimmedLine.match(/!\[([^\]]*)\]\(([^)]+)\)/);
         if (imageMatch) {
           const [_, altText, imageUrl] = imageMatch;
           console.log(`Found image in markdown: ${imageUrl}`);
@@ -328,29 +361,31 @@ export async function convertMarkdownToDocx(
         }
 
         // Handle links - make sure this is after image handling
-        const linkMatch = line.match(/^(?!.*!\[).*\[([^\]]+)\]\(([^)]+)\)/);
+        const linkMatch = trimmedLine.match(
+          /^(?!.*!\[).*\[([^\]]+)\]\(([^)]+)\)/
+        );
         if (linkMatch) {
           const [_, text, url] = linkMatch;
           docChildren.push(processLinkParagraph(text, url, style));
           continue;
         }
 
-        // Regular paragraph text with special formatting
+        // Regular paragraph text with special formatting (use trimmedLine for processing)
         if (!inList) {
           try {
-            docChildren.push(processParagraph(line, style));
+            docChildren.push(processParagraph(trimmedLine, style));
           } catch (error) {
             // Fallback to plain text if formatting fails
             console.warn(
-              `Warning: Failed to process text formatting at line ${
-                i + 1
+              `Warning: Failed to process text formatting at line ${i + 1}: ${
+                error instanceof Error ? error.message : String(error)
               }. Using plain text.`
             );
             docChildren.push(
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: line,
+                    text: trimmedLine,
                     color: "000000",
                     size: style.paragraphSize || 24,
                   }),
@@ -368,6 +403,9 @@ export async function convertMarkdownToDocx(
           }
           continue;
         }
+
+        // Removed the fallback 'isContinuation' list item processing as it was causing type errors
+        // and needs a more robust implementation if required.
       } catch (error) {
         // Log error and continue with next line
         console.warn(
@@ -391,6 +429,58 @@ export async function convertMarkdownToDocx(
       docChildren.push(...listItems);
     }
 
+    // Generate TOC content
+    const tocContent: Paragraph[] = [];
+    if (headings.length > 0) {
+      // Optional: Add a title for the TOC
+      tocContent.push(
+        new Paragraph({
+          text: "Table of Contents",
+          heading: "Heading1", // Or a specific TOC title style
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 240 },
+        })
+      );
+      headings.forEach((heading) => {
+        tocContent.push(
+          new Paragraph({
+            children: [
+              new InternalHyperlink({
+                anchor: heading.bookmarkId,
+                children: [
+                  new TextRun({
+                    text: heading.text,
+                  }),
+                ],
+              }),
+            ],
+            indent: { left: (heading.level - 1) * 400 },
+            spacing: { after: 120 },
+          })
+        );
+      });
+    }
+
+    // Replace placeholder with TOC content
+    const finalDocChildren: (Paragraph | Table)[] = [];
+    let tocInserted = false;
+    docChildren.forEach((child) => {
+      // Check for the marker property instead of inspecting content
+      if ((child as any).__isTocPlaceholder === true) {
+        if (tocContent.length > 0 && !tocInserted) {
+          finalDocChildren.push(...tocContent);
+          tocInserted = true; // Ensure TOC is inserted only once
+        } else {
+          // If no headings were found or TOC already inserted, remove placeholder
+          console.warn(
+            "TOC placeholder found, but no headings collected or TOC already inserted."
+          );
+        }
+      } else {
+        finalDocChildren.push(child);
+      }
+    });
+
     // Create the document with appropriate settings
     const doc = new Document({
       sections: [
@@ -408,7 +498,21 @@ export async function convertMarkdownToDocx(
               },
             },
           },
-          children: docChildren,
+          footers: {
+            default: new Footer({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      children: [PageNumber.CURRENT],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          },
+          children: finalDocChildren,
         },
       ],
       styles: {
